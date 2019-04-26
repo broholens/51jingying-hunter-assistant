@@ -1,10 +1,10 @@
 import time
 import random
 from utils import html2tree, request
-from config import hunters, get_headers, post_headers, post_data
+from config1 import hunters, get_headers, post_headers, post_data
 
 
-class HunterAssistant:
+class Hunter51Assistant:
     """帮助猎头递出名片
     """
 
@@ -24,15 +24,17 @@ class HunterAssistant:
         self.post_headers = post_headers
         self.case_id = hunter['case_id']
 
-    def get_delivered_count(self):
-        # 获取已递出名片的数量
+    def get_basic_info(self):
+        # 获取专业值和已递出名片的数量
         resp = request(self.home_url, headers=self.get_headers)
         try:
             tree = html2tree(resp.text)
             delivered_count = tree.xpath('//div[contains(@class, "spyindex_resume")]/p/span/text()')
+            professional_score = tree.xpath('//p[@class="ss_Message_name"]/span/a/text()')[-1]
         except:
-            return -1
-        return int(delivered_count[0])
+            return -1, -1
+        delivered_count = delivered_count[0] if delivered_count else -1
+        return int(professional_score), int(delivered_count)
 
     def get_managers_ids(self):
         # 获取经理人id
@@ -49,12 +51,14 @@ class HunterAssistant:
         return True if resp.json().get('msg') == '递送成功' else False
 
     def deliver_card(self):
-        # 获取已经投递的数量
-        delivered_count = self.get_delivered_count()
-        if delivered_count == -1:
-            print('未获取到今日递出数量！ 请尝试更新cookie！')
-            return
-        print('今日已递出{}个名片'.format(delivered_count))
+        professional_score, delivered_count = self.get_basic_info()
+        if professional_score == -1:
+            print('未获取到专业值！ 请尝试更新cookie！')
+            return 
+        if professional_score < 200:
+            # BUG: 专业值小于200且已经投递过简历
+            delivered_count = 0
+        print('目前专业值为{}, 今日已递出{}个名片'.format(professional_score, delivered_count))
         # 每天投递20个
         remaining = 20 - delivered_count
         # 获取第一页经理人id
@@ -69,12 +73,15 @@ class HunterAssistant:
                 print('递送成功！经理人id:', manager)
                 remaining -= 1
             else:
-                print('递送失败！经理人id：', manager)
-            time.sleep(random.random()*10)
-        print('今日投递简历数：', self.get_delivered_count())
+                print('递送失败！经理人id:', manager)
+            time.sleep(random.random()*30)
+        print('今日投递任务完成！')
+        # professional_score, delivered_count = self.get_basic_info()
+        # print('目前专业值为{}, 今日已递出{}个名片'.format(professional_score, delivered_count))
 
 
 if __name__ == '__main__':
     for hunter in hunters:
-        assistant = HunterAssistant(hunter)
+        assistant = Hunter51Assistant(hunter)
         assistant.deliver_card()
+        time.sleep(random.random()*60)

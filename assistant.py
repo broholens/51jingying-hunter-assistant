@@ -1,10 +1,10 @@
 import time
 import random
 from utils import html2tree, request
-from config1 import hunters, get_headers, post_headers, post_data
+from config import hunters, get_headers, post_headers, post_data
 
 
-class Hunter51Assistant:
+class HunterAssistant:
     """帮助猎头递出名片
     """
 
@@ -82,6 +82,6 @@ class Hunter51Assistant:
 
 if __name__ == '__main__':
     for hunter in hunters:
-        assistant = Hunter51Assistant(hunter)
+        assistant = HunterAssistant(hunter)
         assistant.deliver_card()
         time.sleep(random.random()*60)

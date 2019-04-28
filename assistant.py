@@ -1,7 +1,7 @@
 import time
 import random
 from utils import html2tree, request
-from config import hunters, get_headers, post_headers, post_data
+from config1 import hunters, get_headers, post_headers, post_data
 
 
 class HunterAssistant:
@@ -67,7 +67,7 @@ class HunterAssistant:
             print('未获取到经理人ID！ 请尝试更新cookie！ ')
             return 
         print('获取经理人信息成功！')
-        while remaining >= 0 and len(managers) > 0:
+        while remaining > 0 and len(managers) > 0:
             manager = managers.pop()
             if self.recommend(manager, self.case_id) is True:
                 print('递送成功！经理人id:', manager)

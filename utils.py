@@ -39,33 +39,54 @@ def get_jobarea_dict():
     for code, area in area_code_ptn.findall(resp.text):
         yield code, area
 
+
+def get_captcha(cookie):
+    resp = requests.get('https://www.51jingying.com/common/verifycode.php?type=2&verifytype=1', cookies=cookie)
+    with open('code.png', 'wb')as f:
+        f.write(resp.content)
+
 def fuck_login():
     ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
-    # resp = requests.get('https://www.51jingying.com/common/login.php?loginas=spy', headers={'User-Agent': ua})
-    # for cookie in resp.cookies:
-    #     print(cookie.name, cookie.value)
-    # cookies = {c.name: c.value for c in resp.cookies}
+    resp = requests.get('https://www.51jingying.com/common/login.php?loginas=spy', headers={'User-Agent': ua})
+    # # print(resp.content.decode('gb2312'))
+    # # 手动输入验证码测试
+    # while 1:
+    #     get_captcha(resp.cookies)
+    #     code = input('code:')
+    #     is_sure = input('Are u sure?(Y/N)')
+    #     if is_sure == 'Y':
+    #         break
     data = {
+        # 'vcode': code,
+        # 'returnUrl': '',
         'role': 'xpaZpaGgxg==',
-        'randomcode': 543257,
-        'username': 17719674030,
-        'userpwd': '',
-        'checked': 1
+        'randomcode': '543257',
+        'username': '17719674030',
+        'userpwd': '****',
+        'checked': '1'
     }
+
+    # data = (('role', 'xpaZpaGgxg=='), ('randomcode', 543257), ('username', 17719674030), ('userpwd', 'muge2018'), ('checked', 1), ('randomcode', {'tody': '2019-04-28'}))
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded', 
         'User-Agent': ua,
         'Host': 'passport.51jingying.com',
         'Origin': 'https://www.51jingying.com',
-        'Upgrade-Insecure-Requests': '1',
+        # 'Upgrade-Insecure-Requests': '1',
         'Referer': 'https://www.51jingying.com/common/login.php?loginas=spy',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-        'Connection': 'keep-alive'
+        # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+        # 'Connection': 'keep-alive'
     }
     resp = requests.post('https://passport.51jingying.com/login.php?act=formLogin', json=data, headers=headers)
-    for cookie in resp.cookies:
-        print(cookie.name, cookie.value)
-    print()
+    # newcommonlogin.js
+    # 204 账户被锁定
+    # 203 用户名密码错误
+    # 202 用户信息泄露
+    # 201 验证码错误
+    # 200 登录异常
+    # 101 该账号已在其他地方或浏览器登录
+    # 100 success
+    print(re.findall('status\":\"(\d+)\"', resp.text)[0])
     print('17719674030' in resp.headers['set-cookie'])
 
 
@@ -121,3 +142,5 @@ def get_cookies():
         d.close()
         time.sleep(10)
     d.quit()
+
+fuck_login()

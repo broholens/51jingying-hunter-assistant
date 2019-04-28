@@ -1,13 +1,13 @@
-# 工作地与对应编码
-area_code = {
-    '北京': '010000',
-    '上海': ''
-}
+# sqlite
+DB_NAME = '51jingying'
+
+# cookie有效期24h
 
 # 猎头
 hunters = [
     {
-        'cookie': '',
+        'username': '',
+        'password': '',
         'case_id': '',
         'keyword': '',
         'area': ''

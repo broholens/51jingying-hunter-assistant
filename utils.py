@@ -1,3 +1,4 @@
+import os
 import re
 import time
 import json
@@ -5,21 +6,29 @@ import requests
 from lxml.html import etree
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from config import hunters
+from config1 import hunters, cookie_dir, get_headers, post_headers
 
 # requests.exceptions.ConnectionError: ('Connection aborted.', HTTPException('got more than 100 headers'))
 import http
 http.client._MAXHEADERS = 1000
 
+if not os.path.exists(cookie_dir):
+    os.mkdir(cookie_dir)
+
 area_code_ptn = re.compile('(r\d{6})\']=\'(.*?)\';')
 
-def request(url, is_get=True, headers=None, data=None):
+
+def generate_filename_by_username(username):
+    # 生成文件路径
+    return os.path.join(cookie_dir, username+'.txt')
+
+def request(url, is_get=True, **kwargs):
     # 对requests的简单封装
+    headers = get_headers if is_get is True else post_headers
+    cookie = kwargs.get('cookies', '')
+    headers.update({'cookie': cookie})
     try:
-        if is_get is True:
-            resp = requests.get(url, headers=headers)
-        else:
-            resp = requests.post(url, headers=headers, data=data)
+        resp = requests.post(url, headers=headers, **kwargs)
         return resp
     except:
         return
@@ -107,21 +116,28 @@ def load_cookies(filename):
 #     resp = requests.get(url, cookies=cookies, headers={'User-Agent': ua})
 #     print(resp.content.decode('gb2312'))
 
-def get_cookies():
-    # selenium模拟登陆，获取并保存cookie
-    login_url = 'https://www.51jingying.com/common/login.php?loginas=spy'
-    home_url = 'https://www.51jingying.com/spy/index.php?act=generalSpyIndex'
+def make_driver():
+    # 创建chrome
     # chrome配置
     ops = webdriver.ChromeOptions()
-    ops.add_argument('--headless')
+    # ops.add_argument('--headless')
     ops.add_argument('--no-sandbox')
     ops.add_argument('--disable-gpu')
     ops.add_argument('--start-maximized')
     ops.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"')
     d = webdriver.Chrome(options=ops)
+    return d
 
+def get_cookies():
+    # selenium模拟登陆，获取并保存cookie
+    login_url = 'https://www.51jingying.com/common/login.php?loginas=spy'
+    home_url = 'https://www.51jingying.com/spy/index.php?act=generalSpyIndex'
+    logout_url = 'https://www.51jingying.com/common/login.php?act=logout'
+    offline_url = 'https://www.51jingying.com/spy/offline.php'
+    d = make_driver()
     for hunter in hunters:
         # 获取并保存cookie
+        
         d.get(login_url)
         uname = d.find_element_by_name('_username')
         uname.clear()
@@ -131,16 +147,20 @@ def get_cookies():
         passwd.send_keys(hunter['password'])
         passwd.send_keys(Keys.ENTER)
 
-        time.sleep(2)
+        time.sleep(5)
         if d.current_url == home_url:
             print(hunter['username'], '登陆成功!')
+        d.refresh()
         cookies = d.get_cookies()
         # TODO: 保存在数据库中
-        with open('cookies/'+str(hunter['username'])+'.txt', 'w')as f:
+        filename = generate_filename_by_username(hunter['username'])
+        with open(filename, 'w')as f:
             f.write(json.dumps(cookies))
         print(hunter['username'], 'cookie 已保存！')
-        d.close()
+        # 重定向到登陆页面
+        # d.get(logout_url)
+        d.delete_all_cookies()
         time.sleep(10)
     d.quit()
 
-fuck_login()
+# get_cookies()

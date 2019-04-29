@@ -1,6 +1,9 @@
 # sqlite
 DB_NAME = '51jingying'
 
+# cookie文件夹
+cookie_dir = 'cookies'
+
 # cookie有效期24h
 
 # 猎头

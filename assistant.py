@@ -1,8 +1,11 @@
 import time
 import random
-from utils import html2tree, request
-from config1 import hunters, get_headers, post_headers, post_data
+from utils import (html2tree, request, generate_filename_by_username,
+                    load_cookies)
+from config1 import hunters, post_data
 
+cookie = '**'
+# cookie = {i.split('=',1)[0] : i.split('=',1)[1] for i in cookie.split('; ')}
 
 class HunterAssistant:
     """帮助猎头递出名片
@@ -18,15 +21,16 @@ class HunterAssistant:
     def __init__(self, hunter):
         post_data.update({'fulltext': hunter['keyword'], 'exparea': hunter['area']})
         self.post_data = post_data
-        get_headers.update({'Cookie': hunter['cookie']})
-        self.get_headers = get_headers
-        post_headers.update({'Cookie': hunter['cookie']})
-        self.post_headers = post_headers
         self.case_id = hunter['case_id']
+        filename = generate_filename_by_username(hunter['username'])
+        # self.cookie = load_cookies(filename)
+        self.cookie = cookie
+        print(self.cookie)
+
 
     def get_basic_info(self):
         # 获取专业值和已递出名片的数量
-        resp = request(self.home_url, headers=self.get_headers)
+        resp = request(self.home_url, cookies=self.cookie)
         try:
             tree = html2tree(resp.text)
             delivered_count = tree.xpath('//div[contains(@class, "spyindex_resume")]/p/span/text()')
@@ -38,14 +42,16 @@ class HunterAssistant:
 
     def get_managers_ids(self):
         # 获取经理人id
-        resp = request(self.resume_url, False, self.post_headers, self.post_data)
+        resp = request(self.resume_url, False, json=self.post_data, cookies=self.cookie)
         if not resp:
             return []
         return resp.json()['mgrid']
     
     def recommend(self, manager_id, case_id):
         # 递名片
-        resp = request(self.post_url, False, self.post_headers, {'userid': manager_id+'_1', 'caseid': case_id})
+        data = {'userid': manager_id+'_1', 'caseid': case_id}
+        resp = request(self.post_url, False, json=data, cookies=self.cookie)
+        print(resp.content.decode('gb2312'))
         if not resp:
             return False
         return True if resp.json().get('msg') == '递送成功' else False

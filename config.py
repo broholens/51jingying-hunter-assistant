@@ -1,11 +1,11 @@
 # 猎头
 hunters = [
     {
-        'username': '',
-        'password': '',
-        'case_id': '',
-        'keyword': '',
-        'area': ''
+        'username': '',  # 用户名
+        'password': '',  # 密码
+        'case_id': '',   # 职位id
+        'keyword': '',   # 搜索关键字
+        'area': ''       # 期望工作地
     }
 ]
 

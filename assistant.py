@@ -1,11 +1,8 @@
+import os
 import time
 import random
-from utils import (html2tree, request, generate_filename_by_username,
-                    load_cookies)
-from config1 import hunters, post_data
-
-cookie = '**'
-# cookie = {i.split('=',1)[0] : i.split('=',1)[1] for i in cookie.split('; ')}
+from config import hunters, post_data
+from utils import html2tree, request, load_cookies, generate_filename_by_username, get_cookies
 
 class HunterAssistant:
     """帮助猎头递出名片
@@ -22,11 +19,11 @@ class HunterAssistant:
         post_data.update({'fulltext': hunter['keyword'], 'exparea': hunter['area']})
         self.post_data = post_data
         self.case_id = hunter['case_id']
-        filename = generate_filename_by_username(hunter['username'])
-        # self.cookie = load_cookies(filename)
-        self.cookie = cookie
-        print(self.cookie)
-
+        self.username = hunter['username']
+        filename = generate_filename_by_username(self.username)
+        if not os.path.exists(filename):
+            get_cookies()
+        self.cookie = load_cookies(filename)
 
     def get_basic_info(self):
         # 获取专业值和已递出名片的数量
@@ -42,7 +39,7 @@ class HunterAssistant:
 
     def get_managers_ids(self):
         # 获取经理人id
-        resp = request(self.resume_url, False, json=self.post_data, cookies=self.cookie)
+        resp = request(self.resume_url, method='post', json=self.post_data, cookies=self.cookie)
         if not resp:
             return []
         return resp.json()['mgrid']
@@ -50,19 +47,22 @@ class HunterAssistant:
     def recommend(self, manager_id, case_id):
         # 递名片
         data = {'userid': manager_id+'_1', 'caseid': case_id}
-        resp = request(self.post_url, False, json=data, cookies=self.cookie)
+        resp = request(self.post_url, method='post', json=data, cookies=self.cookie)
         print(resp.content.decode('gb2312'))
         if not resp:
             return False
         return True if resp.json().get('msg') == '递送成功' else False
 
     def deliver_card(self):
+        print('*'*40)
+        print('当前猎头为', self.username)
+        print('*'*40)
         professional_score, delivered_count = self.get_basic_info()
         if professional_score == -1:
             print('未获取到专业值！ 请尝试更新cookie！')
             return 
         if professional_score < 200:
-            # BUG: 专业值小于200且已经投递过简历
+            # BUG: 重新启动程序，专业值小于200且已经投递过简历
             delivered_count = 0
         print('目前专业值为{}, 今日已递出{}个名片'.format(professional_score, delivered_count))
         # 每天投递20个
@@ -73,6 +73,9 @@ class HunterAssistant:
             print('未获取到经理人ID！ 请尝试更新cookie！ ')
             return 
         print('获取经理人信息成功！')
+        # 打乱序列，解决下面pop的问题
+        random.shuffle(managers)
+        # 投递
         while remaining > 0 and len(managers) > 0:
             manager = managers.pop()
             if self.recommend(manager, self.case_id) is True:
@@ -81,9 +84,10 @@ class HunterAssistant:
             else:
                 print('递送失败！经理人id:', manager)
             time.sleep(random.random()*30)
-        print('今日投递任务完成！')
-        # professional_score, delivered_count = self.get_basic_info()
-        # print('目前专业值为{}, 今日已递出{}个名片'.format(professional_score, delivered_count))
+        # 打印投递完成信息
+        professional_score, delivered_count = self.get_basic_info()
+        print(self.username, '今日投递任务完成！')
+        print('目前专业值为{}, 今日已递出{}个名片'.format(professional_score, delivered_count))
 
 
 if __name__ == '__main__':

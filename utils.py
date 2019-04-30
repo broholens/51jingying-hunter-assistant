@@ -2,33 +2,46 @@ import os
 import re
 import time
 import json
+import http
+import datetime
 import requests
 from lxml.html import etree
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from config1 import hunters, cookie_dir, get_headers, post_headers
+from config import hunters, get_headers, post_headers
 
 # requests.exceptions.ConnectionError: ('Connection aborted.', HTTPException('got more than 100 headers'))
-import http
 http.client._MAXHEADERS = 1000
 
-if not os.path.exists(cookie_dir):
-    os.mkdir(cookie_dir)
+def generate_cookies_dir():
+    today = datetime.date.today()
+    yestoday = today - datetime.timedelta(days=1)
+    today_cookies_dir = 'cookies-' + str(today)
+    yestoday_cookies_dir = 'cookies-' + str(yestoday)
 
-area_code_ptn = re.compile('(r\d{6})\']=\'(.*?)\';')
+    if os.path.exists(yestoday_cookies_dir):
+        os.removedirs(yestoday_cookies_dir)
 
+    if not os.path.exists(today_cookies_dir):
+        os.mkdir(today_cookies_dir)
+    return today_cookies_dir
+
+cookies_dir = generate_cookies_dir()
 
 def generate_filename_by_username(username):
     # 生成文件路径
-    return os.path.join(cookie_dir, username+'.txt')
+    return os.path.join(cookies_dir, username+'.txt')
 
-def request(url, is_get=True, **kwargs):
+def request(url, method='GET', **kwargs):
     # 对requests的简单封装
-    headers = get_headers if is_get is True else post_headers
-    cookie = kwargs.get('cookies', '')
-    headers.update({'cookie': cookie})
+    method = method.upper()  # get/post
+    if method == 'GET':
+        headers = get_headers
+    else:
+        method = 'POST'
+        headers = post_headers
     try:
-        resp = requests.post(url, headers=headers, **kwargs)
+        resp = requests.request(method, url, headers=headers, **kwargs)
         return resp
     except:
         return
@@ -43,61 +56,11 @@ def html2tree(html):
 
 def get_jobarea_dict():
     # 获取地区及对应编码
+    area_code_ptn = re.compile('(r\d{6})\']=\'(.*?)\';')
     url = 'https://www.51jingying.com/js/dict/dd_jobarea.js?201904261337'
     resp = requests.get(url)
     for code, area in area_code_ptn.findall(resp.text):
         yield code, area
-
-
-def get_captcha(cookie):
-    resp = requests.get('https://www.51jingying.com/common/verifycode.php?type=2&verifytype=1', cookies=cookie)
-    with open('code.png', 'wb')as f:
-        f.write(resp.content)
-
-def fuck_login():
-    ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
-    resp = requests.get('https://www.51jingying.com/common/login.php?loginas=spy', headers={'User-Agent': ua})
-    # # print(resp.content.decode('gb2312'))
-    # # 手动输入验证码测试
-    # while 1:
-    #     get_captcha(resp.cookies)
-    #     code = input('code:')
-    #     is_sure = input('Are u sure?(Y/N)')
-    #     if is_sure == 'Y':
-    #         break
-    data = {
-        # 'vcode': code,
-        # 'returnUrl': '',
-        'role': 'xpaZpaGgxg==',
-        'randomcode': '543257',
-        'username': '17719674030',
-        'userpwd': '****',
-        'checked': '1'
-    }
-
-    # data = (('role', 'xpaZpaGgxg=='), ('randomcode', 543257), ('username', 17719674030), ('userpwd', 'muge2018'), ('checked', 1), ('randomcode', {'tody': '2019-04-28'}))
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded', 
-        'User-Agent': ua,
-        'Host': 'passport.51jingying.com',
-        'Origin': 'https://www.51jingying.com',
-        # 'Upgrade-Insecure-Requests': '1',
-        'Referer': 'https://www.51jingying.com/common/login.php?loginas=spy',
-        # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-        # 'Connection': 'keep-alive'
-    }
-    resp = requests.post('https://passport.51jingying.com/login.php?act=formLogin', json=data, headers=headers)
-    # newcommonlogin.js
-    # 204 账户被锁定
-    # 203 用户名密码错误
-    # 202 用户信息泄露
-    # 201 验证码错误
-    # 200 登录异常
-    # 101 该账号已在其他地方或浏览器登录
-    # 100 success
-    print(re.findall('status\":\"(\d+)\"', resp.text)[0])
-    print('17719674030' in resp.headers['set-cookie'])
-
 
 def load_cookies(filename):
     # 从文件中加载cookie
@@ -107,23 +70,20 @@ def load_cookies(filename):
             cookies.update({item['name']: item['value']})
     return cookies
 
-# def test_login():
-#     ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
-#     url = 'https://www.51jingying.com/spy/searchmanager.php'
-#     cookies = load_cookies()
-#     # 当url = https://www.51jingying.com/spy/index.php?act=generalSpyIndex时，会报如下错误
-#     # requests.exceptions.TooManyRedirects: Exceeded 30 redirects
-#     resp = requests.get(url, cookies=cookies, headers={'User-Agent': ua})
-#     print(resp.content.decode('gb2312'))
-
+# 客户端检测js文件
+# https://trace.51jingying.com/bigdata.js?201904291547
 def make_driver():
-    # 创建chrome
-    # chrome配置
+    # 创建chrome并配置
     ops = webdriver.ChromeOptions()
-    # ops.add_argument('--headless')
+    ops.add_argument('--headless')
     ops.add_argument('--no-sandbox')
     ops.add_argument('--disable-gpu')
     ops.add_argument('--start-maximized')
+    ops.add_argument('--incognito')
+    ops.add_argument('lang=zh_CN')
+    # 解决window.navigator.webdriver=True的问题
+    # https://wwwhttps://www.cnblogs.com/presleyren/p/10771000.html.cnblogs.com/presleyren/p/10771000.html
+    ops.add_experimental_option('excludeSwitches', ['enable-automation'])
     ops.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"')
     d = webdriver.Chrome(options=ops)
     return d
@@ -135,9 +95,9 @@ def get_cookies():
     logout_url = 'https://www.51jingying.com/common/login.php?act=logout'
     offline_url = 'https://www.51jingying.com/spy/offline.php'
     d = make_driver()
+    d.get('https://www.baidu.com/')
     for hunter in hunters:
         # 获取并保存cookie
-        
         d.get(login_url)
         uname = d.find_element_by_name('_username')
         uname.clear()
@@ -147,9 +107,18 @@ def get_cookies():
         passwd.send_keys(hunter['password'])
         passwd.send_keys(Keys.ENTER)
 
-        time.sleep(5)
+        time.sleep(3)
         if d.current_url == home_url:
             print(hunter['username'], '登陆成功!')
+        # 强制下线
+        elif offline_url in d.current_url:
+            d.find_element_by_link_text('强制下线').click()
+            time.sleep(1)
+            if d.current_url == home_url:
+                print(hunter['username'], '登陆成功!')
+        else:
+            print(hunter['username'], '未知错误发生')
+            continue
         d.refresh()
         cookies = d.get_cookies()
         # TODO: 保存在数据库中
@@ -160,7 +129,5 @@ def get_cookies():
         # 重定向到登陆页面
         # d.get(logout_url)
         d.delete_all_cookies()
-        time.sleep(10)
+        time.sleep(3)
     d.quit()
-
-# get_cookies()

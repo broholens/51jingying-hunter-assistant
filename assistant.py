@@ -77,6 +77,9 @@ class HunterAssistant:
             if delivered_count >= 20:
                 break
             self._deliever_card(managers, delivered_count)
+            # 专业值小于200 跳出循环
+            if professional_score < 200:
+                break
         # 打印投递完成信息
         print(self.username, '今日投递任务完成！')
 
@@ -94,7 +97,7 @@ class HunterAssistant:
             time.sleep(random.random()*30)
 
 if __name__ == '__main__':
-    for hunter in hunters[:1]:
+    for hunter in hunters:
         assistant = HunterAssistant(hunter)
         assistant.deliver_card()
         time.sleep(random.random()*60)

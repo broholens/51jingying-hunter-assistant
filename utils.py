@@ -3,6 +3,7 @@ import re
 import time
 import json
 import http
+import glob
 import datetime
 import requests
 from lxml.html import etree
@@ -15,12 +16,9 @@ http.client._MAXHEADERS = 1000
 
 def generate_cookies_dir():
     today = datetime.date.today()
-    yestoday = today - datetime.timedelta(days=1)
     today_cookies_dir = 'cookies-' + str(today)
-    yestoday_cookies_dir = 'cookies-' + str(yestoday)
-
-    if os.path.exists(yestoday_cookies_dir):
-        os.removedirs(yestoday_cookies_dir)
+    for old_cookies in glob.glob('cookies-*'):
+        os.removedirs(old_cookies)
 
     if not os.path.exists(today_cookies_dir):
         os.mkdir(today_cookies_dir)

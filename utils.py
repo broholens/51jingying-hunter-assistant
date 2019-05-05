@@ -15,13 +15,20 @@ from config import hunters, get_headers, post_headers
 http.client._MAXHEADERS = 1000
 
 def generate_cookies_dir():
+    # 生成cookies文件
     today = datetime.date.today()
     today_cookies_dir = 'cookies-' + str(today)
-    for old_cookies in glob.glob('cookies-*'):
-        os.removedirs(old_cookies)
-
-    if not os.path.exists(today_cookies_dir):
+    # 匹配文件夹
+    old_cookies_dirs = glob.glob('cookies-*')
+    # 如果不存在今天的，就新建今天的文件夹
+    if today_cookies_dir in old_cookies_dirs:
+        old_cookies_dirs.remove(today_cookies_dir)
+    else:
         os.mkdir(today_cookies_dir)
+    # 删除过期cookies
+    for old_cookies in old_cookies_dirs:
+        os.removedirs(old_cookies)
+        
     return today_cookies_dir
 
 cookies_dir = generate_cookies_dir()

@@ -81,16 +81,17 @@ def make_driver():
     # 创建chrome并配置
     ops = webdriver.ChromeOptions()
     ops.add_argument('--headless')
-    ops.add_argument('--no-sandbox')
-    ops.add_argument('--disable-gpu')
+    # ops.add_argument('--no-sandbox')
+    # ops.add_argument('--disable-gpu')
     ops.add_argument('--start-maximized')
-    ops.add_argument('--incognito')
+    # ops.add_argument('--incognito')
     ops.add_argument('lang=zh_CN')
     # 解决window.navigator.webdriver=True的问题
     # https://wwwhttps://www.cnblogs.com/presleyren/p/10771000.html.cnblogs.com/presleyren/p/10771000.html
     ops.add_experimental_option('excludeSwitches', ['enable-automation'])
     ops.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"')
     d = webdriver.Chrome(options=ops)
+    # d.set_window_size(1024,768)
     return d
 
 def get_cookies():
@@ -101,9 +102,9 @@ def get_cookies():
     offline_url = 'https://www.51jingying.com/spy/offline.php'
     d = make_driver()
     d.get('https://www.baidu.com/')
+    d.get(login_url)
     for hunter in hunters:
         # 获取并保存cookie
-        d.get(login_url)
         uname = d.find_element_by_name('_username')
         uname.clear()
         uname.send_keys(hunter['username'])
@@ -111,6 +112,7 @@ def get_cookies():
         passwd.clear()
         passwd.send_keys(hunter['password'])
         passwd.send_keys(Keys.ENTER)
+
 
         time.sleep(3)
         if d.current_url == home_url:
@@ -124,15 +126,14 @@ def get_cookies():
         else:
             print(hunter['username'], '未知错误发生')
             continue
-        d.refresh()
+        # d.refresh()
         cookies = d.get_cookies()
-        # TODO: 保存在数据库中
         filename = generate_filename_by_username(hunter['username'])
         with open(filename, 'w')as f:
             f.write(json.dumps(cookies))
         print(hunter['username'], 'cookie 已保存！')
         # 重定向到登陆页面
-        # d.get(logout_url)
-        d.delete_all_cookies()
+        d.get(logout_url)
+        # d.delete_all_cookies()
         time.sleep(3)
     d.quit()

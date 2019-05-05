@@ -7,7 +7,6 @@ area_code = {
 
 # 猎头
 hunters = [
-    ## 王秦悦
     {
         'username': '',
         'password': '',
@@ -20,8 +19,7 @@ hunters = [
 # get方法请求头
 get_headers = {
     'Host': 'www.51jingying.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
-    'Cookie': ''
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
 } 
 
 # post方法请求头

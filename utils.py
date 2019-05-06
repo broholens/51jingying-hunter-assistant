@@ -4,6 +4,7 @@ import time
 import json
 import http
 import glob
+import shutil
 import datetime
 import requests
 from lxml.html import etree
@@ -26,8 +27,9 @@ def generate_cookies_dir():
     else:
         os.mkdir(today_cookies_dir)
     # 删除过期cookies
+    # 使用os.removedirs报错
     for old_cookies in old_cookies_dirs:
-        os.removedirs(old_cookies)
+        shutil.rmtree(old_cookies)
         
     return today_cookies_dir
 

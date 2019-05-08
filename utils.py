@@ -139,34 +139,3 @@ def get_cookies():
         # d.delete_all_cookies()
         time.sleep(3)
     d.quit()
-
-def get_cookies_by_requests(uname, passwd):
-    login_url = 'https://www.51jingying.com/common/login.php?loginas=spy'
-    post_url = 'https://passport.51jingying.com/login.php?act=formLogin'
-    resp = request(login_url)
-    # print(resp.content.decode('gbk'))
-    try:
-        tree = html2tree(resp.text)
-        code = tree.xpath('//input[@id="randomCode"]/@value')[0]
-        print(code)
-    except:
-        return
-    cookies = resp.cookies.get_dict()
-    print(cookies)
-    data = {
-        'randomcode': code,
-        'username': uname,
-        'userpwd': passwd,
-        'role': 'xpaZpaGgxg==',
-        'checked': 1
-    }
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
-        'Referer': 'https://www.51jingying.com/common/login.php?loginas=spy',
-        'Host': 'passport.51jingying.com',
-        'Content-Type': 'application/json'
-    }
-    resp = requests.post(post_url, cookies=cookies, json=data, headers=headers)
-    print(resp.cookies.get_dict())
-
-get_cookies_by_requests('', '')

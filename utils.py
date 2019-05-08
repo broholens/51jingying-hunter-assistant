@@ -92,7 +92,10 @@ def make_driver():
     # https://wwwhttps://www.cnblogs.com/presleyren/p/10771000.html.cnblogs.com/presleyren/p/10771000.html
     ops.add_experimental_option('excludeSwitches', ['enable-automation'])
     ops.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"')
-    d = webdriver.Chrome(options=ops)
+    try:
+        d = webdriver.Chrome(options=ops)
+    except:
+        d = webdriver.Chrome(chrome_options=ops)
     # d.set_window_size(1024,768)
     return d
 

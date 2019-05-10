@@ -2,7 +2,7 @@ import os
 import time
 import random
 from config import post_data
-from utils import html2tree, request, load_cookies, generate_filename_by_username, get_cookies
+from utils import html2tree, request, load_cookies, generate_filename_by_username, get_cookies, log_q
 
 class HunterAssistant:
     """帮助猎头递出名片
@@ -14,6 +14,9 @@ class HunterAssistant:
     resume_url = 'https://www.51jingying.com/spy/searchmanager.php?act=getResumeSrch'
     # 递出名片
     post_url = 'https://www.51jingying.com/spy/webchat.php?act=postCard'
+
+    # 最大投递数量
+    max_deliver_count = 20
 
     def __init__(self, hunter):
         post_data.update({'fulltext': hunter['keyword'], 'exparea': hunter['area']})
@@ -56,25 +59,30 @@ class HunterAssistant:
         print('*'*40)
         print('当前猎头为', self.username)
         print('*'*40)
+        log_q.put('切换到猎头{}'.format(self.username))
         # 获取经理人id
         managers = self.get_managers_ids()
         if managers == []:
-            print('未获取到经理人ID！ 请尝试更新cookie！ ')
+            print('未获取到经理人ID！ 请尝试更新cookie!')
+            log_q.put('未获取到经理人ID！ 请尝试更新cookie！')
             return 
         print('获取经理人信息成功！')
+        log_q.put('获取经理人信息成功！')
         # 打乱序列，解决下面pop的问题
         random.shuffle(managers)
-        # while循环解决投递失败导致投递数达不到20的问题
+        # while循环解决投递失败导致投递数达不到的问题
         while 1:
             professional_score, delivered_count = self.get_basic_info()
             if professional_score == -1:
                 print('未获取到专业值！ 请尝试更新cookie！')
+                log_q.put('未获取到专业值！ 请尝试更新cookie！')
                 return 
             if professional_score < 200:
                 # BUG: 重新启动程序，专业值小于200且已经投递过简历
                 delivered_count = 0
             print('目前专业值为{}, 今日已递出{}个名片'.format(professional_score, delivered_count))
-            if delivered_count >= 20:
+            log_q.put('目前专业值为{}, 今日已递出{}个名片'.format(professional_score, delivered_count))
+            if delivered_count >= self.max_deliver_count:
                 break
             self._deliever_card(managers, delivered_count)
             # 专业值小于200 跳出循环
@@ -82,18 +90,21 @@ class HunterAssistant:
                 break
         # 打印投递完成信息
         print(self.username, '今日投递任务完成！')
+        log_q.put('{}今日投递任务完成！'.format(self.username))
 
     def _deliever_card(self, managers, delivered_count):
-        # 每天投递20个
-        remaining = 20 - delivered_count
+        # 剩余投递数
+        remaining = self.max_deliver_count - delivered_count
         # 投递
         while remaining > 0 and len(managers) > 0:
             manager = managers.pop()
             if self.recommend(manager, self.case_id) is True:
                 print('递送成功！经理人id:', manager)
                 remaining -= 1
+                log_q.put('{}剩余任务量{}'.format(self.username, remaining))
             else:
                 print('递送失败！经理人id:', manager)
+                log_q.put('{}递送失败！经理人id:{}'.format(self.username, manager))
             time.sleep(random.random()*20)
 
 # if __name__ == '__main__':

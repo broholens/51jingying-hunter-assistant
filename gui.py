@@ -1,11 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
+from utils import log_q, hunters
 from assistant import HunterAssistant
 
-win = tk.Tk()
-win.title("51jingying")    # 添加标题
-win.geometry('300x180')
-win.resizable(0, 0)        # 禁止调整窗口大小
+# win = tk.Tk()
+# win.title("51jingying")    # 添加标题
+# win.geometry('500x380')
+# win.resizable(0, 0)        # 禁止调整窗口大小
+
 
 
 # ttk.Label(win, text="Chooes a number").grid(column=1, row=0)    # 添加一个标签，并将其列设置为1，行设置为0
@@ -40,6 +42,7 @@ win.resizable(0, 0)        # 禁止调整窗口大小
 # from tkinter import ttk  # 导入内部包
  
 # li = ['王记','12','男']
+# lis = li * 100
 # root = tkinter.Tk()
 # root.title('测试')
 # tree = ttk.Treeview(root,columns=['1','2','3'],show='headings')
@@ -49,7 +52,8 @@ win.resizable(0, 0)        # 禁止调整窗口大小
 # tree.heading('1',text='姓名')
 # tree.heading('2',text='学号')
 # tree.heading('3',text='性别')
-# tree.insert('','end',values=li)
+# for i in lis:
+#     tree.insert('','end',values=li)
 # tree.grid()
  
  
@@ -61,3 +65,28 @@ win.resizable(0, 0)        # 禁止调整窗口大小
  
 # tree.bind('<ButtonRelease-1>', treeviewClick)#绑定单击离开事件===========
 # root.mainloop()
+
+import tkinter as tk
+from tkinter import ttk
+
+root = tk.Tk()
+root.geometry('500x380')
+root.title('51jingying')
+root.resizable(0, 0)
+
+sb = ttk.Scrollbar(root)
+sb.pack()
+
+lb = ttk.Listbox(root, yscrollcommand=sb.set)
+
+scrollbar = Scrollbar(myWindow)
+scrollbar.pack( side = RIGHT, fill = Y )
+ 
+mylist = Listbox(myWindow, yscrollcommand = scrollbar.set)
+for line in range(100):
+    mylist.insert(END, "This is line number " + str(line))
+ 
+mylist.pack( side = LEFT, fill = BOTH )
+scrollbar.config( command = mylist.yview )
+#进入消息循环
+myWindow.mainloop()

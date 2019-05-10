@@ -7,14 +7,19 @@ import http
 import glob
 import shutil
 import datetime
+from multiprocessing import Queue
 import requests
 from lxml.html import etree
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from config import get_headers, post_headers
+from config import get_headers, post_headers, area_code_filename
 
 # requests.exceptions.ConnectionError: ('Connection aborted.', HTTPException('got more than 100 headers'))
 http.client._MAXHEADERS = 1000
+
+# 日志队列
+log_q = Queue()
+
 
 def generate_cookies_dir():
     # 生成cookies文件
@@ -62,7 +67,7 @@ def html2tree(html):
     except:
         return
 
-def get_jobarea_dict():
+def get_jobarea_code():
     # 获取地区及对应编码
     area_code_ptn = re.compile(r'(\d{6})\']=\'(.*?)\';')
     url = 'https://www.51jingying.com/js/dict/dd_jobarea.js?201904261337'
@@ -71,19 +76,41 @@ def get_jobarea_dict():
     for code, area in area_code_ptn.findall(resp.text):
         area_code.update({area: code})
     # 存入文件
-    with open('area_code.json', 'w')as f:
+    with open(area_code_filename, 'w')as f:
         f.write(json.dumps(area_code))
+    return area_code
 
-if not os.path.exists('area_code.json'):
-    get_jobarea_dict()
+def load_jobarea_code():
+    """加载地区与编码json文件"""
+    if not os.path.exists(area_code_filename):
+        area_code = get_jobarea_code()
+        # 直接返回
+        return area_code
+    with open(area_code_filename, 'r')as f:
+        # 读取后返回
+        return json.loads(f.read())
 
 def get_hunters(filename='hunters.csv'):
-    f = open(filename, 'r')
+    """从文件中加载hunters"""
+    f = open(filename, 'r', encoding='utf-8')
     hunters = list(csv.DictReader(f))
     f.close()
+    hunters = replace_area_with_code(hunters)
+    return hunters
+
+
+def replace_area_with_code(hunters):
+    """对每个猎头信息中的地址进行编码转换"""
+    area_code = load_jobarea_code()
+    for hunter in hunters:
+        hunter['area'] = area_code.get(hunter['area'])
+        if not hunter['area']:
+            log_q.put('猎头信息错误,请检查配置文件！')
+            return
     return hunters
 
 hunters = get_hunters()
+log_q.put('猎头信息加载完成！')
 
 def load_cookies(filename):
     # 从文件中加载cookie
@@ -134,18 +161,20 @@ def get_cookies():
         passwd.send_keys(hunter['password'])
         passwd.send_keys(Keys.ENTER)
 
-
         time.sleep(3)
         if d.current_url == home_url:
             print(hunter['username'], '登陆成功!')
+            log_q.put('{}登陆成功！'.format(hunter['username']))
         # 强制下线
         elif offline_url in d.current_url:
             d.find_element_by_link_text('强制下线').click()
             time.sleep(1)
             if d.current_url == home_url:
                 print(hunter['username'], '登陆成功!')
+                log_q.put('{}登陆成功！'.format(hunter['username']))
         else:
             print(hunter['username'], '未知错误发生')
+            log_q.put('{}未知错误发生'.format(hunter['username']))
             continue
         # d.refresh()
         cookies = d.get_cookies()
@@ -153,6 +182,7 @@ def get_cookies():
         with open(filename, 'w')as f:
             f.write(json.dumps(cookies))
         print(hunter['username'], 'cookie 已保存！')
+        log_q.put('{}cookie 已保存！'.format(hunter['username']))
         # 重定向到登陆页面
         d.get(logout_url)
         # d.delete_all_cookies()

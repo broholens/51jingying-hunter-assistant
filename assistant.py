@@ -1,7 +1,7 @@
 import os
 import time
 import random
-from config import hunters, post_data
+from config import post_data
 from utils import html2tree, request, load_cookies, generate_filename_by_username, get_cookies
 
 class HunterAssistant:
@@ -94,10 +94,10 @@ class HunterAssistant:
                 remaining -= 1
             else:
                 print('递送失败！经理人id:', manager)
-            time.sleep(random.random()*30)
+            time.sleep(random.random()*20)
 
-if __name__ == '__main__':
-    for hunter in hunters:
-        assistant = HunterAssistant(hunter)
-        assistant.deliver_card()
-        time.sleep(random.random()*60)
+# if __name__ == '__main__':
+#     for hunter in hunters:
+#         assistant = HunterAssistant(hunter)
+#         assistant.deliver_card()
+#         time.sleep(random.random()*60)

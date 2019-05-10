@@ -1,5 +1,6 @@
 import os
 import re
+import csv
 import time
 import json
 import http
@@ -10,7 +11,7 @@ import requests
 from lxml.html import etree
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from config import hunters, get_headers, post_headers
+from config import get_headers, post_headers
 
 # requests.exceptions.ConnectionError: ('Connection aborted.', HTTPException('got more than 100 headers'))
 http.client._MAXHEADERS = 1000
@@ -63,11 +64,26 @@ def html2tree(html):
 
 def get_jobarea_dict():
     # 获取地区及对应编码
-    area_code_ptn = re.compile('(r\d{6})\']=\'(.*?)\';')
+    area_code_ptn = re.compile(r'(\d{6})\']=\'(.*?)\';')
     url = 'https://www.51jingying.com/js/dict/dd_jobarea.js?201904261337'
     resp = requests.get(url)
+    area_code = {}
     for code, area in area_code_ptn.findall(resp.text):
-        yield code, area
+        area_code.update({area: code})
+    # 存入文件
+    with open('area_code.json', 'w')as f:
+        f.write(json.dumps(area_code))
+
+if not os.path.exists('area_code.json'):
+    get_jobarea_dict()
+
+def get_hunters(filename='hunters.csv'):
+    f = open(filename, 'r')
+    hunters = list(csv.DictReader(f))
+    f.close()
+    return hunters
+
+hunters = get_hunters()
 
 def load_cookies(filename):
     # 从文件中加载cookie

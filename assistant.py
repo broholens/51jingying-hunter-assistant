@@ -101,10 +101,10 @@ class HunterAssistant:
             if self.recommend(manager, self.case_id) is True:
                 print('递送成功！经理人id:', manager)
                 remaining -= 1
-                log_q.put('{}剩余任务量{}'.format(self.username, remaining))
+                log_q.put('{} 递送成功！剩余任务量{}'.format(self.username, remaining))
             else:
                 print('递送失败！经理人id:', manager)
-                log_q.put('{}递送失败！经理人id:{}'.format(self.username, manager))
+                log_q.put('{} 递送失败！经理人id:{}'.format(self.username, manager))
             time.sleep(random.random()*20)
 
 # if __name__ == '__main__':

@@ -1,25 +1,10 @@
-# 工作地与对应编码
-area_code = {
-    '北京': '010000',
-    '上海': '020000',
-    '深圳': '040000',
-}
-
-# 猎头
-hunters = [
-    {
-        'username': '',
-        'password': '',
-        'case_id': '',
-        'keyword': 'java',
-        'area': '010000'
-    },
-]
+area_code_filename = 'area_code.json'
 
 # get方法请求头
 get_headers = {
     'Host': 'www.51jingying.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
+    'Cookie': ''
 } 
 
 # post方法请求头

@@ -6,6 +6,7 @@ import json
 import http
 import glob
 import shutil
+import random
 import datetime
 from multiprocessing import Queue
 import requests
@@ -45,6 +46,10 @@ cookies_dir = generate_cookies_dir()
 def generate_filename_by_username(username):
     # 生成文件路径
     return os.path.join(cookies_dir, username+'.txt')
+
+def random_sleep(max_sleep_time):
+    """随机sleep"""
+    time.sleep(random.random()*max_sleep_time)
 
 def request(url, method='GET', **kwargs):
     # 对requests的简单封装
@@ -129,7 +134,6 @@ def make_driver(driver='phantomjs'):
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         dcap["phantomjs.page.settings.userAgent"] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
         dcap["phantomjs.page.settings.loadImages"] = False
-        print(dcap)
         d = webdriver.PhantomJS(executable_path='phantomjs.exe', desired_capabilities=dcap)
         return d
     # 创建chrome并配置

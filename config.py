@@ -1,5 +1,7 @@
 area_code_filename = 'area_code.json'
 
+hunters_file = '../hunters.csv'
+
 # get方法请求头
 get_headers = {
     'Host': 'www.51jingying.com',

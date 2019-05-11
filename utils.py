@@ -12,6 +12,7 @@ import requests
 from lxml.html import etree
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from config import get_headers, post_headers, area_code_filename
 
 # requests.exceptions.ConnectionError: ('Connection aborted.', HTTPException('got more than 100 headers'))
@@ -122,7 +123,15 @@ def load_cookies(filename):
 
 # 客户端检测js文件
 # https://trace.51jingying.com/bigdata.js?201904291547
-def make_driver():
+def make_driver(driver='phantomjs'):
+    """只支持chrome和phantomjs"""
+    if driver == 'phantomjs':
+        dcap = dict(DesiredCapabilities.PHANTOMJS)
+        dcap["phantomjs.page.settings.userAgent"] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
+        dcap["phantomjs.page.settings.loadImages"] = False
+        print(dcap)
+        d = webdriver.PhantomJS(executable_path='phantomjs.exe', desired_capabilities=dcap)
+        return d
     # 创建chrome并配置
     ops = webdriver.ChromeOptions()
     ops.add_argument('--headless')

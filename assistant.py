@@ -1,8 +1,7 @@
 import os
-import time
 import random
 from config import post_data
-from utils import html2tree, request, load_cookies, generate_filename_by_username, get_cookies, log_q
+from utils import html2tree, request, load_cookies, generate_filename_by_username, get_cookies, log_q, random_sleep
 
 class HunterAssistant:
     """帮助猎头递出名片
@@ -105,10 +104,10 @@ class HunterAssistant:
             else:
                 print('递送失败！经理人id:', manager)
                 log_q.put('{} 递送失败！经理人id:{}'.format(self.username, manager))
-            time.sleep(random.random()*20)
+            random_sleep(20)
 
 # if __name__ == '__main__':
 #     for hunter in hunters:
 #         assistant = HunterAssistant(hunter)
 #         assistant.deliver_card()
-#         time.sleep(random.random()*60)
+#         random_sleep(60)

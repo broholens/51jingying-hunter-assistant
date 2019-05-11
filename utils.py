@@ -152,6 +152,11 @@ def get_cookies():
     d.get('https://www.baidu.com/')
     d.get(login_url)
     for hunter in hunters:
+        # cookie file
+        filename = generate_filename_by_username(hunter['username'])
+        # 如果cookie存在则直接跳过
+        if os.path.exists(filename):
+            continue
         # 获取并保存cookie
         uname = d.find_element_by_name('_username')
         uname.clear()
@@ -178,7 +183,7 @@ def get_cookies():
             continue
         # d.refresh()
         cookies = d.get_cookies()
-        filename = generate_filename_by_username(hunter['username'])
+        
         with open(filename, 'w')as f:
             f.write(json.dumps(cookies))
         print(hunter['username'], 'cookie 已保存！')

@@ -9,6 +9,7 @@ from assistant import HunterAssistant
 root = tk.Tk()
 root.geometry('400x320')
 root.title('51jingying')
+root.iconbitmap('icon.ico')
 root.resizable(0, 0)
 
 

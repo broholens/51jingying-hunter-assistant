@@ -134,7 +134,8 @@ def make_driver(driver='phantomjs'):
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         dcap["phantomjs.page.settings.userAgent"] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
         dcap["phantomjs.page.settings.loadImages"] = False
-        d = webdriver.PhantomJS(executable_path='phantomjs.exe', desired_capabilities=dcap)
+        # 添加executable_path报错
+        d = webdriver.PhantomJS(desired_capabilities=dcap)
         return d
     # 创建chrome并配置
     ops = webdriver.ChromeOptions()

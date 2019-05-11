@@ -3,11 +3,12 @@ import random
 import tkinter as tk
 from tkinter import ttk
 from threading import Thread
+from datetime import datetime
 from utils import log_q, hunters
 from assistant import HunterAssistant
 
 root = tk.Tk()
-root.geometry('400x320')
+root.geometry('500x320')
 root.title('51jingying')
 root.iconbitmap('icon.ico')
 root.resizable(0, 0)
@@ -30,7 +31,7 @@ def deliever_card():
 def print_log():
     """打印日志信息到listbox"""
     while 1:
-        lb.insert(tk.END, log_q.get()) 
+        lb.insert(tk.END, str(datetime.now()).split('.')[0]+'  '+log_q.get()) 
         lb.yview_moveto(1)
 
 def run():
@@ -56,7 +57,7 @@ lb = tk.Listbox(root, yscrollcommand=sb.set)
 
 # 打印开始递名片前的信息
 while not log_q.empty():
-    lb.insert(tk.END, log_q.get())
+    lb.insert(tk.END, str(datetime.now()).split('.')[0]+'  '+log_q.get())
     lb.yview_moveto(1)
 
 lb.pack(pady=20, padx=30, fill=tk.BOTH, expand=True)

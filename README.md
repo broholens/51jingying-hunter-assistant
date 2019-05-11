@@ -13,15 +13,15 @@
 
 ### TODO
 * <s>随机选取经理人</s>
-* <s>对页面进行解析，判断是第一次递出还是第二次递出<s>不再判断，投递失败重新尝试其他经理人
+* ~~对页面进行解析，判断是第一次递出还是第二次递出~~  不再判断，投递失败重新尝试其他经理人
 * <s>自动将下载简历上传到猎管家</s>  **请不要在法律的边缘试探**
 * **[BUG]** 用phantomjs做driver，在强制下线时判断失败导致卡死
 
 ### 各文件说明
 1. `assistant.py`   投递名片主程序，包含HunterAssistant类
-2. `gui.py`                图形化界面
-3. `utils.py`            一些有用的函数，包括使用selenium获取cookie
-4. `config.py`         配置文件，包括requests post名片时的headers
+2. `gui.py`             图形化界面
+3. `utils.py`          一些有用的函数，包括使用selenium获取cookie
+4. `config.py`        配置文件，包括requests post名片时的headers
 
 
 ### 开发小记

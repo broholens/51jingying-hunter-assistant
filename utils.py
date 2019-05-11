@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import csv
 import time
 import json
@@ -14,7 +15,7 @@ from lxml.html import etree
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from config import get_headers, post_headers, area_code_filename
+from config import get_headers, post_headers, area_code_filename, hunters_file
 
 # requests.exceptions.ConnectionError: ('Connection aborted.', HTTPException('got more than 100 headers'))
 http.client._MAXHEADERS = 1000
@@ -96,9 +97,9 @@ def load_jobarea_code():
         # 读取后返回
         return json.loads(f.read())
 
-def get_hunters(filename='hunters.csv'):
+def get_hunters():
     """从文件中加载hunters"""
-    f = open(filename, 'r', encoding='utf-8')
+    f = open(hunters_file, 'r', encoding='utf-8')
     hunters = list(csv.DictReader(f))
     f.close()
     hunters = replace_area_with_code(hunters)
@@ -128,13 +129,13 @@ def load_cookies(filename):
 
 # 客户端检测js文件
 # https://trace.51jingying.com/bigdata.js?201904291547
-def make_driver(driver='phantomjs'):
+def make_driver(driver='chrome'):
     """只支持chrome和phantomjs"""
     if driver == 'phantomjs':
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         dcap["phantomjs.page.settings.userAgent"] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
         dcap["phantomjs.page.settings.loadImages"] = False
-        # 添加executable_path报错
+        # phantomjs.exe位于同级目录下
         d = webdriver.PhantomJS(desired_capabilities=dcap)
         return d
     # 创建chrome并配置

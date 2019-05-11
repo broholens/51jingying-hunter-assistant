@@ -1,10 +1,8 @@
-import time
-import random
 import tkinter as tk
 from tkinter import ttk
 from threading import Thread
 from datetime import datetime
-from utils import log_q, hunters
+from utils import log_q, hunters, random_sleep
 from assistant import HunterAssistant
 
 root = tk.Tk()
@@ -20,7 +18,7 @@ def deliever_card():
         hc = HunterAssistant(hunter)
         hc.deliver_card()
         # 切换账号
-        time.sleep(random.random()*60)
+        random_sleep(60)
 
     # 投递完成
     log_q.put('今日所有猎头任务完成！')

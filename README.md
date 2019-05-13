@@ -9,11 +9,16 @@
 
 
 ### 食用方法  
-
-**请自备Chrome浏览器**
-1. 下载[51.zip](https://pan.baidu.com/s/1aEyWEy71k90knritW864vg)并解压(提取码：70q3)
-2. 进入51目录，在hunters.csv中添加自己的账号
-3. 运行51.exe(建议添加快捷方式到桌面，方便以后运行)
+**如果有杀毒软件的话，程序可能会被移动到沙盒中，重新将其添加到信任区即可**
++ 第一种方式
+    - **请自备Chrome浏览器**
+    1. 下载[51jingying-chrome.zip](https://pan.baidu.com/s/1JliLr3HPmRPUSzogG_Ra4w)并解压(提取码：va34)
+    2. 进入解压目录，在hunters.csv中添加自己的账号
+    3. 运行51jingying.exe(建议添加快捷方式到桌面，方便以后运行)
++ 第二种方式
+    1. 下载[51jingying-phantomjs.zip](https://pan.baidu.com/s/1Vos5m6DvRGCfi7DYR0Foqw)并解压(提取码：wms4)
+    2. 进入解压目录，在hunters.csv中添加自己的账号
+    3. 运行51jingying.exe(建议添加快捷方式到桌面，方便以后运行)
 
 
 ### TODO  

@@ -99,7 +99,10 @@ def load_jobarea_code():
 
 def get_hunters():
     """从文件中加载hunters"""
-    f = open(hunters_file, 'r', encoding='utf-8')
+    try:
+        f = open(hunters_file, 'r', encoding='gbk')
+    except:
+        f = open(hunters_file, 'r', encoding='utf-8')
     hunters = list(csv.DictReader(f))
     f.close()
     hunters = replace_area_with_code(hunters)

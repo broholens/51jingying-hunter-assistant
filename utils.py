@@ -1,7 +1,5 @@
 import os
 import re
-import sys
-import csv
 import time
 import json
 import http
@@ -11,6 +9,7 @@ import random
 import datetime
 from multiprocessing import Queue
 import requests
+from pandas import read_excel
 from lxml.html import etree
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -99,15 +98,10 @@ def load_jobarea_code():
 
 def get_hunters():
     """从文件中加载hunters"""
-    try:
-        f = open(hunters_file, 'r', encoding='gbk')
-    except:
-        f = open(hunters_file, 'r', encoding='utf-8')
-    hunters = list(csv.DictReader(f))
-    f.close()
+    df = read_excel(hunters_file)
+    hunters = df.to_dict('records')
     hunters = replace_area_with_code(hunters)
     return hunters
-
 
 def replace_area_with_code(hunters):
     """对每个猎头信息中的地址进行编码转换"""

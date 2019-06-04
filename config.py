@@ -1,6 +1,6 @@
 area_code_filename = 'area_code.json'
 
-hunters_file = 'hunters.csv'
+hunters_file = 'hunters.xlsx'
 
 # get方法请求头
 get_headers = {

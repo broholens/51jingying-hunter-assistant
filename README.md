@@ -10,15 +10,10 @@
 
 ### 食用方法  
 **如果有杀毒软件的话，程序可能会被移动到沙盒中，重新将其添加到信任区即可**
-+ 第一种方式
-    - **请自备Chrome浏览器**
-    1. 下载[51jingying-chrome.zip](https://pan.baidu.com/s/1JliLr3HPmRPUSzogG_Ra4w)并解压(提取码：va34)
-    2. 进入解压目录，在hunters.csv中添加自己的账号
-    3. 运行51jingying.exe(建议添加快捷方式到桌面，方便以后运行)
-+ 第二种方式
-    1. 下载[51jingying-phantomjs.zip](https://pan.baidu.com/s/1Vos5m6DvRGCfi7DYR0Foqw)并解压(提取码：wms4)
-    2. 进入解压目录，在hunters.csv中添加自己的账号
-    3. 运行51jingying.exe(建议添加快捷方式到桌面，方便以后运行)
+
+1. [下载](https://pan.baidu.com/s/1Pie6TnSeW9Ptp_V8o7DRtg)可执行程序(提取码:grk7)
+2. 进入解压目录，在hunters.xlsx中添加自己的账号
+3. 运行51jingying.exe(建议添加快捷方式到桌面，方便以后运行)
 
 
 ### TODO  
@@ -42,7 +37,7 @@
 
 ### 开发小记  
 
-1. pyinstaller 打包命令 `pyinstaller.exe -i="icon.ico" --add-data="chromedriver.exe;."  --add-data="icon.ico;." --add-data="hunters.csv;." -w .\gui.py -n "51`，加上`-F`参数后，调用不到chromedriver/phantomjs
+1. pyinstaller 打包命令 `pyinstaller.exe -i="icon.ico" --add-data="phantomjs.exe;."  --add-data="icon.ico;." --add-data="hunters.xlsx;." -w .\gui.py -n "51ingying"`，加上`-F`参数后，调用不到chromedriver/phantomjs
 2. pyinstaller 打包时需要退出电脑管家、360等杀毒软件，否则会自动被放到沙盒中
 3. 虽然phantomjs已经不再维护，但是因为其不需要浏览器依赖，仍希望能实现Phantomjs获取cookies
 4. GUI中的`print_log`需要一直获取(`while 1`)，而不是`while not log_q.empty()`

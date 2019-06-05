@@ -45,7 +45,7 @@ cookies_dir = generate_cookies_dir()
 
 def generate_filename_by_username(username):
     # 生成文件路径
-    return os.path.join(cookies_dir, username+'.txt')
+    return os.path.join(cookies_dir, str(username)+'.txt')
 
 def random_sleep(max_sleep_time):
     """随机sleep"""
@@ -109,7 +109,7 @@ def replace_area_with_code(hunters):
     for hunter in hunters:
         hunter['area'] = area_code.get(hunter['area'])
         if not hunter['area']:
-            log_q.put('猎头信息错误,请检查配置文件！')
+            log_q.put('{}工作地址信息错误,请检查配置文件！'.format(hunter['username']))
             return
     return hunters
 
@@ -126,7 +126,7 @@ def load_cookies(filename):
 
 # 客户端检测js文件
 # https://trace.51jingying.com/bigdata.js?201904291547
-def make_driver(driver='chrome'):
+def make_driver(driver='phantomjs'):
     """只支持chrome和phantomjs"""
     if driver == 'phantomjs':
         dcap = dict(DesiredCapabilities.PHANTOMJS)
